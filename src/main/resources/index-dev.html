@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Evogame</title>
+</head>
+<body>
+
+
+<div>
+    <canvas style="display: block; border: 1px solid purple;" id="canvas" width="255" height="255"/>
+</div>
+
+
+<!-- Include Scala.js compiled code -->
+<script type="text/javascript" src="./target/scala-2.11/scala-js-fastopt.js"></script>
+<!-- Run tutorial.webapp.TutorialApp -->
+<script type="text/javascript">
+      conway.Evogame().main();
+ </script>
+</body>
+</html>
