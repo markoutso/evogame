@@ -8,13 +8,18 @@ import scala.scalajs.js.JSApp
 
 object Conway {
 
+  def random(rows: Int, cols: Int, percentage: Double): Conway =
+    new Conway(for {
+      i <- 0 until rows
+      j <- 0 until cols
+    } yield Cell(i, j, Math.random() > percentage))
+
   case class Cell(x: Int, y: Int, alive: Boolean)
 
-  class Conway(rows: Int, cols: Int, state: Set[(Int, Int)]) {
+  class Conway(model: IndexedSeq[Cell]) {
 
-    val model: IndexedSeq[Cell] = for (i <- 0 until rows; j <- 0 until cols) yield {
-      if (state.contains((i, j))) Cell(i, j, true)
-      else Cell(i, j, false)
+    val (rows, cols) = model.foldLeft((0, 0)) { case ((r, c), Cell(x, y, _)) =>
+      (Math.max(r, x), Math.max(c, y))
     }
 
     def get(i: Int, j: Int): Cell = model(i * cols + j)
@@ -26,7 +31,22 @@ object Conway {
         if inBounds(i, j) && (i != c.x || j != c.y)
       } yield get(i, j)
 
-    def inBounds(i: Int, j: Int): Boolean = i > 0 && i < rows && j > 0 && j < cols
+    def inBounds(i: Int, j: Int): Boolean =
+      i > 0 && i < rows && j > 0 && j < cols
+
+    def evolve: Conway = new Conway(model.map { c =>
+      val nb = neighbors(c).count(_.alive)
+      if (c.alive) {
+        if (nb >= 4 || nb <= 1) Cell(c.x, c.y, alive=false)
+        else c
+      } else {
+        if (nb == 3) Cell(c.x, c.y, alive=true)
+        else c
+      }
+    })
+
+    def render: IndexedSeq[IndexedSeq[Cell]] =
+      (0 until rows).map(i => (0 until cols).map(j => get(i, j)))
 
   }
 
