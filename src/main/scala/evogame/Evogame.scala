@@ -8,13 +8,28 @@ import scala.scalajs.js.JSApp
 
 object Conway {
 
-  def random(rows: Int, cols: Int, percentage: Double): Conway =
-    new Conway(for {
-      i <- 0 until rows
-      j <- 0 until cols
-    } yield Cell(i, j, Math.random() > percentage))
-
   case class Cell(x: Int, y: Int, alive: Boolean)
+
+  trait Generator[A] extends (A => Conway) {
+    def rangeMap(rows: Int, cols: Int)(f: (Int, Int) => Cell) =
+      for {
+        i <- 0 until rows
+        j <- 0 until cols
+      } yield f(i, j)
+  }
+
+  trait Gene extends Generator[Conway]
+
+  case class RandomPercentage(p: Double) extends Gene {
+    def apply(in: Conway): Conway = new Conway(rangeMap(in.rows, in.cols) {
+      case (i, j) if Math.random() > p => Cell(i, j, alive=true)
+      case (i, j) => Cell(i, j, alive=false)
+    })
+  }
+
+  case class Size(rows: Int, cols: Int) extends Generator[Unit] {
+    def apply: Conway = new Conway(rangeMap(rows, cols) { case (i, j) => Cell(i, j, alive=false)})
+  }
 
   class Conway(model: IndexedSeq[Cell]) {
 
@@ -56,6 +71,7 @@ object Conway {
 
 object Evogame extends JSApp {
   def main() = {
+    
     val canvas = dom.document.getElementById("canvas").asInstanceOf[html.Canvas]
     val renderer = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 
