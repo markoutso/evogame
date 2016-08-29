@@ -8,15 +8,17 @@
 
 
 <div>
-    <canvas style="display: block; border: 1px solid purple;" id="canvas" width="255" height="255"/>
+    <canvas style="display: block; border: 1px solid purple;" id="canvas" width="800" height="800" />
 </div>
 
 
 <!-- Include Scala.js compiled code -->
-<script type="text/javascript" src="./target/scala-2.11/scala-js-fastopt.js"></script>
+<script type="text/javascript" src="../evogame-fastopt.js"></script>
+<script type="text/javascript" src="/workbench.js"></script>
+
 <!-- Run tutorial.webapp.TutorialApp -->
 <script type="text/javascript">
-      conway.Evogame().main();
+      evogame.Evogame().main();
  </script>
 </body>
 </html>
