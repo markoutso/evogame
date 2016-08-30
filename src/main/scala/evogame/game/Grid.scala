@@ -1,7 +1,5 @@
 package evogame.game
 
-import math.{hypot, abs}
-
 object Grid {
 
   def rangeMap[A](width: Int, height: Int)(f: (Int, Int) => A) =
@@ -27,14 +25,13 @@ object Grid {
 
 }
 
-
 class Grid(val width: Int, val height: Int, val cells: IndexedSeq[Cell]) {
   type Dir = (Int, Int)
 
   def get(x: Int, y: Int): Cell = cells(y * width + x)
 
-  def centerCells: IndexedSeq[Cell] = {
-    val dirs = IndexedSeq(
+  def centerCells: Seq[Cell] = {
+    val dirs = Seq(
       ((width / 2) - 1, (height / 2) - 1),
       ((width / 2) - 1, height / 2),
       (width / 2, (height / 2) - 1),
@@ -44,21 +41,15 @@ class Grid(val width: Int, val height: Int, val cells: IndexedSeq[Cell]) {
 
   def middle: (Double, Double) = (width / 2.0 - 1, height / 2.0 - 1)
 
-//  def outerCells: Seq[Cell] = {
-//    val (mw, mh) = middle
-//    for {
-//      x <- List(0, mw, width - 1)
-//      y <- List(0, mh, height - 1)
-//      if (x, y) != (mw, mh)
-//    } yield get(x, y)
-//  }
+  def outerCells: Seq[Cell] = {
+    val (mw, mh) = middle
+    for {
+      x <- List(0, mw.toInt, width - 1)
+      y <- List(0, mh.toInt, height - 1)
+      if (x, y) != (mw, mh)
+    } yield get(x, y)
+  }
 
-
-//  def outerDir(c: Cell): Dir = {
-//    val cells = outerCells
-//    val min = cells.sortBy(_.dist(c)).head
-//    (math.signum(min.x - c.x), math.signum(min.y - c.y))
-//  }
 
   def diff(other: Grid) = cells.zip(other.cells).count { case (c1, c2) => c1.alive != c2.alive }
 
