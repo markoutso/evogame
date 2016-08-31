@@ -1,10 +1,10 @@
 package evogame.game
 
-class Animal(val grid: Grid) {
+class Organism(val grid: Grid) {
   val population = grid.cells.count(_.alive)
 
-  def grow: Animal =
-    new Animal(
+  def grow: Organism =
+    new Organism(
       new Grid(grid.width, grid.height, grid.cells.map { c =>
         val nb = grid.neighbors(c).count(_.alive)
         if (c.alive) {
@@ -16,16 +16,16 @@ class Animal(val grid: Grid) {
         }
       }))
 
-  def diff(other: Animal) = grid.diff(other.grid)
+  def diff(other: Organism) = grid.diff(other.grid)
 
-  def iterate: Stream[Animal] = this #:: this.grow.iterate
+  def iterate: Stream[Organism] = this #:: this.grow.iterate
 
-  def advance(n: Int): Animal = {
+  def advance(n: Int): Organism = {
     var current = this
     for (i <- 0 until n) current = current.grow
     current
   }
 
-  override def toString = s"Animal(${grid.cells.filter(_.alive).toString})"
+  override def toString = s"Organism(${grid.cells.filter(_.alive).toString})"
 
 }

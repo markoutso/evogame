@@ -23,6 +23,10 @@ object Grid {
     width, height, rangeMap(width, height)((x, y) => Cell(x, y, alive=false))
   )
 
+  def full(width: Int, height: Int): Grid = new Grid(
+     width, height, rangeMap(width, height)((x, y) => Cell(x, y, alive=true))
+   )
+
 }
 
 class Grid(val width: Int, val height: Int, val cells: IndexedSeq[Cell]) {
