@@ -5,6 +5,7 @@ import evogame.evolution.evolution._
 import evogame.game.{Grid, Organism}
 import evogame.graphics.Canvas
 
+import scala.util.Random
 import scala.scalajs.js.JSApp
 
 object Evogame extends JSApp {
@@ -24,12 +25,17 @@ object Evogame extends JSApp {
     val W = 20
     val H = 20
 
-    val initial = Species(Empty(W, H), List(Scatter(Parameter(2)), Ratio(Parameter(-7)), Symmetry(Parameter(-9))), List(RandomMutator))
-    val best = (1 until 10).foldLeft(initial) {
+    val initial = Species(
+      Empty(W, H),
+      IndexedSeq(Scatter(Parameter.random), Ratio(Parameter.random), Symmetry(Parameter.random)),
+      List(RandomMutator, OrderMutator))
+
+    val best = (1 until 20).foldLeft(initial) {
       case (s, i) =>
         println(s"evolving $i species")
-        s.evolve.take(10).maxBy(_.org.advance(100).moving)
+        s.evolve.take(10).maxBy {_.org.advance(100).moving }
     }
+    println("playing " + best.org.grid.cells)
     canvas.animate(best.org.iterate.map(_.grid), 500)
 
   }

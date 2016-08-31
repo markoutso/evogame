@@ -1,5 +1,10 @@
 package evogame.evolution
 
+import scala.util.Random
+
+object Parameter {
+  def random: Parameter = new Parameter(Random.nextInt(19) - 9)
+}
 
 case class Parameter(value: Int) {
   require(inBounds(value))
