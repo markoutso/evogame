@@ -33,11 +33,12 @@ object evolution {
   }
 
   case class Species(org: Organism, dna: DNA, mutators: List[Mutator]) {
+    println(s"creating new species ${dna.toString}")
     def evolve: Stream[Species] = {
       val nextDna = mutators.foldLeft(dna) { case (_dna, mut) => mut(_dna) }
       val nextGen = nextDna.foldLeft(org) { case (generation, gene) => gene(generation) }
       val newSpecies = Species(nextGen, nextDna, mutators)
-      newSpecies #:: this.evolve // first generation ancestors
+      (newSpecies #:: this.evolve).distinct // first generation ancestors
     }
   }
 
