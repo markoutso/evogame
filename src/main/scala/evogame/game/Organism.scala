@@ -32,6 +32,6 @@ final class Organism(val grid: Grid) {
     }
   override def hashCode: Int = this.grid.cells.hashCode
 
-  override def toString = s"Organism(${grid.cells.filter(_.alive).toString})"
+  override def toString = s"Organism(${grid.cells.filter(_.alive).map(_.coords)})"
 
 }

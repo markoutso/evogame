@@ -27,16 +27,19 @@ object Evogame extends JSApp {
 
     val initial = Species(
       Empty(W, H),
-      IndexedSeq(Scatter(Parameter.random), Ratio(Parameter.random), Symmetry(Parameter.random)),
+      IndexedSeq(Ratio(Parameter.random), Scatter(Parameter.random), Symmetry(Parameter.random)),
       List(RandomMutator, OrderMutator))
 
-    val best = (1 until 20).foldLeft(initial) {
+    val best = (1 until 10).foldLeft(initial) {
       case (s, i) =>
         println(s"evolving $i species")
-        s.evolve.take(10).maxBy {_.org.advance(100).moving }
+        s.evolve.take(10).maxBy { x =>
+          val futX = x.org.advance(100)
+          futX.moving + futX.population
+        }
     }
-    println("playing " + best.org.grid.cells)
-    canvas.animate(best.org.iterate.map(_.grid), 500)
+    println(best)
+    canvas.animate(best.org.iterate.map(_.grid), 200)
 
   }
 
