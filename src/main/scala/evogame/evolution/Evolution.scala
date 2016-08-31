@@ -72,7 +72,7 @@ object evolution {
       1 -> keep right
       0 -> keep both
      */
-    override def normalize(p: Parameter): Int = if (p.value > 0) 1 else if (p.value < 0) -1 else 0
+    override def normalize(p: Parameter): Int = if (p.value > 3) 1 else if (p.value < 3) -1 else 0
 
     def apply(in: Organism): Organism = {
       val normalParam = normalize(param)
