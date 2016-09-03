@@ -1,20 +1,12 @@
 package evogame.evolution
 
-
-  object Organism {
-    def fromState[A](org: Organism[A], _state: A): Organism[A] = new Organism[A] {
-      val alive = org.alive
-      val dna = org.dna
-      val state = _state
-      val grow = org.grow
-    }
-  }
-
   trait Organism[A] {
     def state: A
     def grow: Organism[A]
     def dna: DNA[A]
     def alive: Boolean
+    def generations: Stream[A]
+    def fromState(state: A): Organism[A]
   }
 
   trait Species[A] {

@@ -2,18 +2,19 @@ package evogame.evolution.types
 
 import evogame.evolution.{DNA, Organism}
 
-class Conway(val state: Grid[Boolean], val dna: DNA[Grid[Boolean]]) extends Organism[Grid[Boolean]] {
+case class Conway(state: Grid[Boolean], dna: DNA[Grid[Boolean]]) extends Organism[Grid[Boolean]] {
   def alive = true
-  def grow: Conway = new Conway(
-    Grid(state.size, Grid.range(state.size).map { case (x, y) =>
+  def grow: Conway = {
+    val cells = Grid.range(state.size).map { case (x, y) =>
       val nb = state.neighbors(x, y)
-      val living = nb.map { case (x, y) => state.get(x, y) }.count(_ == true)
-      if (state.get(x, y)) {
-        if (living >= 4 || living <= 1) false else true
-      } else {
-        if (living == 3) true else false
-      }
-    }), dna)
+      val living = nb.map { case (_x, _y) => state.get(_x, _y) }.count(_ == true)
+      if (state.get(x, y)) living == 2 || living == 3
+      else living == 3
+    }
+    Conway(Grid(state.size, cells), dna)
+  }
+
+  def fromState(state: Grid[Boolean]) = Conway(state, dna)
 
   def generations: Stream[Grid[Boolean]] = state #:: grow.generations
 

@@ -15,6 +15,8 @@ object Grid {
 
   def create[A](size: Int, f: ((Int, Int)) => A): Grid[A] =
     new Grid(size, range(size).map(f))
+
+  def const[A](size: Int, value: A) = new Grid(size, range(size).map(_ => value))
 }
 
 
@@ -61,7 +63,7 @@ case class Scatter[A](value: Double, empty: Setter[A]) extends Gene[Grid[A]] {
       val yp = if (y > m) y - intVal else y + intVal
       if (org.state.inSame(x, xp) && org.state.inSame(y, yp) && org.state.inBounds(xp, yp)) org.state.get(xp, yp) else empty(x, y)
     })
-    Organism.fromState(org, grid)
+    org.fromState(grid)
   }
   def mutate(diff: Double): Gene[Grid[A]] = copy(value = value + diff)
 }
@@ -76,7 +78,7 @@ case class Symmetry[A](value: Double) extends Gene[Grid[A]] {
         if (x < m) (x, y) else (Math.abs(x - offset), y)
       }
       val grid = Grid(org.state.size, coords.map { case (x, y) => org.state.get(x, y) })
-      Organism.fromState(org, grid)
+      org.fromState(grid)
     }
   }
   def mutate(diff: Double): Gene[Grid[A]] = copy(value = value + diff)
@@ -85,7 +87,7 @@ case class Symmetry[A](value: Double) extends Gene[Grid[A]] {
 
 case class Ratio[A](value: Double, full: Setter[A], empty: Setter[A]) extends Gene[Grid[A]] {
   def transform(org: Organism[Grid[A]]): Organism[Grid[A]] =
-    Organism.fromState(org, Grid(org.state.size, Grid.range(org.state.size).map { case (x, y) =>
+    org.fromState(Grid(org.state.size, Grid.range(org.state.size).map { case (x, y) =>
       if (Math.random() > 1 - value) full(x, y) else empty(x, y) }))
   def mutate(diff: Double): Gene[Grid[A]] = copy(value = value + diff)
 }
