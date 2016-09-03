@@ -1,6 +1,6 @@
 package evogame.graphics
 
-import evogame.game.{Cell, Grid}
+import evogame.evolution.types.Grid
 import org.scalajs.dom
 import org.scalajs.dom.html
 
@@ -13,8 +13,8 @@ class Canvas(id: String) {
   ctx.strokeStyle = "#d3d3d3"
   ctx.lineWidth = 1
 
-  def withFillStyle(c: Cell): Canvas = {
-    if (c.alive) ctx.fillStyle = "black" else ctx.fillStyle = "white"
+  def withFillStyle(alive: Boolean): Canvas = {
+    if (alive) ctx.fillStyle = "black" else ctx.fillStyle = "white"
     this
   }
 
@@ -26,16 +26,16 @@ class Canvas(id: String) {
     this
   }
 
-  def draw(g: Grid): Canvas = {
-    val scaleX = canvas.width / g.width
-    val scaleY = canvas.height / g.height
-    g.cells.map(c => withFillStyle(c).drawPixel(c.x, c.y, scaleX, scaleY))
+  def draw(g: Grid[Boolean]): Canvas = {
+    val scaleX = canvas.width / g.size
+    val scaleY = canvas.height / g.size
+    Grid.range(g.size).zip(g.cells).map { case ((x, y), alive) => withFillStyle(alive).drawPixel(x, y, scaleX, scaleY) }
     this
   }
 
   type Stop = () => Unit
 
-  def animate(s: Stream[Grid], speed: Double = 200, frames: Int = -1): Stop = {
+  def animate(s: Stream[Grid[Boolean]], speed: Double = 200, frames: Int = -1): Stop = {
     var current = s
     var times = 0
 
