@@ -34,7 +34,6 @@ package evogame.evolution
   trait DNA[A] {
     def genes: IndexedSeq[Gene[A]]
     def mutate: DNA[A]
-    def reproduce: Organism[A]
   }
 
   trait Gene[A] {

@@ -30,6 +30,11 @@ case class Grid[A](size: Int, cells: IndexedSeq[A]) {
 
   def middle: Double = size / 2.0 - 1
 
+  def inSame(x: Int, xp: Int) = {
+    val m = middle
+    (x > m && xp > m) || (x < m && xp < m)
+  }
+
   def diff(other: Grid[A]) = cells.zip(other.cells).count { case (c1, c2) => c1 != c2 }
 
   def neighbors(pos: (Int, Int)): Seq[(Int, Int)] = {
@@ -50,17 +55,11 @@ case class Scatter[A](value: Double, empty: Setter[A]) extends Gene[Grid[A]] {
   def transform(org: Organism[Grid[A]]): Organism[Grid[A]] = {
     val coords = Grid.range(org.state.size)
     val intVal = value.toInt
-    val (minX, minY, maxX, maxY) = org.state.centerCells.foldLeft((-1, -1, org.state.size + 1, org.state.size + 1)) {
-      case ((_minX, _minY, _maxX, _maxY), (x, y)) =>
-        (min(_minX, x), min(_minY, y), max(_maxX, x), max(_maxY, y))
-    }
-    def aroundCenter(x: Int, y: Int): Boolean = {
-      val l = intVal - 1
-      x >= minX - l && x <= maxX - l && y >= minY - l && y <= maxY - l
-    }
+    val m = org.state.middle
     val grid = Grid(org.state.size, coords.map { case (x, y) =>
-      if (aroundCenter(x, y)) empty(x, y)
-      else org.state.get(x - 1, y - 1)
+      val xp = if (x > m) x - intVal else x + intVal
+      val yp = if (y > m) y - intVal else y + intVal
+      if (org.state.inSame(x, xp) && org.state.inSame(y, yp) && org.state.inBounds(xp, yp)) org.state.get(xp, yp) else empty(x, y)
     })
     Organism.fromState(org, grid)
   }

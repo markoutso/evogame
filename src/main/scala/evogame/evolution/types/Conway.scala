@@ -15,7 +15,6 @@ class Conway(val state: Grid[Boolean], val dna: DNA[Grid[Boolean]]) extends Orga
       }
     }), dna)
 
-  def generations: Stream[Grid[Boolean]] = {
-    (state #:: grow.generations).distinct
-  }
+  def generations: Stream[Grid[Boolean]] = state #:: grow.generations
+
 }
