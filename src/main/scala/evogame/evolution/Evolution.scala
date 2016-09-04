@@ -1,27 +1,15 @@
 package evogame.evolution
 
-  trait Organism[A] {
+
+  trait Organism[A, B <: Organism[A, B]] {
     def state: A
-    def grow: Organism[A]
     def dna: DNA[A]
     def alive: Boolean
-    def generations: Stream[A]
-    def fromState(state: A): Organism[A]
+    def withState(state: A): B
+    def copy: B
   }
 
-  trait Species[A] {
-    def organism: Organism[A]
-    def evolve: Stream[Organism[A]] = {
-      val nextDna = organism.dna
-      val nextGen = nextDna.genes.foldLeft(organism) { case (generation, gene) => gene.transform(generation) }
-      (nextGen #:: this.evolve).distinct
-    }
 
-  }
-
-  trait Creator[A] {
-    def create(from: A): DNA[A]
-  }
 
   trait DNA[A] {
     def genes: IndexedSeq[Gene[A]]
@@ -29,11 +17,22 @@ package evogame.evolution
   }
 
   trait Gene[A] {
-    def transform(org: Organism[A]): Organism[A]
+    def transform[B <: Organism[A, B]](org: B): B
     def value: Double
-    def mutate(diff: Double): Gene[A]
+    def mutate: Gene[A]
   }
 
+
+//
+//trait Species[A] {
+//  def organism: Organism[A]
+//  def evolve: Stream[Organism[A]] = {
+//    val nextDna = organism.dna
+//    val nextGen = nextDna.genes.foldLeft(organism) { case (generation, gene) => gene.transform(generation) }
+//    (nextGen #:: this.evolve).distinct
+//  }
+//
+//}
 
 //  object RandomMutator extends Mutator {
 //    def randomTerm: Int = if (Math.random() > 0.5) 2 else -2

@@ -23,9 +23,10 @@ object C extends App {
 
   var c = new Conway(grid, null)
   def const[A](v: A): ((Int, Int) => A) = { case (x, y) => v }
-      val empty = new Conway(Grid.const(5, false), null)
-      var k = Ratio(0.3, const(true), const(false)).transform(empty)
-      k = Symmetry(1).transform(k)
+
+  val empty = new Conway(Grid.const(5, false), null)
+  var k = Ratio(0.3, const(true), const(false)).transform(empty)
+  k = Symmetry[Boolean](1).transform(k)
 
   (1 to 10) foreach {_ =>
     println(k.state.cells.count(_ == true))
@@ -48,13 +49,12 @@ object Evogame extends JSApp {
     val grid = Grid(80, Grid.range(80).map(p => positions.contains(p.swap)))
 
     val c = new Conway(grid, null)
-    canvas.animate(c.generations)
-    //canvas.draw(c.state)
-    //canvas.draw(Scatter(1, { case (x, y) => false }).transform(c).state)
-//    def const[A](v: A): ((Int, Int) => A) = { case (x, y) => v }
-//    val empty = new Conway(Grid.const(41, false), null)
-//    val k = Symmetry(1).transform(Ratio(0.2, const(true), const(false)).transform(empty))
-//    canvas.animate(k.generations, 300)
+    canvas.draw(c.state)
+    canvas.draw(Scatter(1, { case (x, y) => false }).transform(c).state)
+    def const[A](v: A): ((Int, Int) => A) = { case (x, y) => v }
+    val empty = new Conway(Grid.const(41, false), null)
+    val k = Symmetry[Boolean](1).transform(Ratio(0.2, const(true), const(false)).transform(empty))
+    canvas.animate(k.generations, 300)
 
   }
 

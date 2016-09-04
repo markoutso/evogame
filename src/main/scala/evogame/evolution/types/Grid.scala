@@ -3,8 +3,6 @@ package evogame.evolution.types
 import evogame.evolution.types.Grid.Setter
 import evogame.evolution.{Gene, Organism}
 
-import scala.math.{max, min}
-
 object Grid {
   type Setter[A] = ((Int, Int) => A)
 
@@ -20,7 +18,7 @@ object Grid {
 }
 
 
-case class Grid[A](size: Int, cells: IndexedSeq[A]) {
+case class Grid[+A](size: Int, cells: IndexedSeq[A]) {
 
   def get(x: Int, y: Int): A = cells(y * size + x)
 
@@ -37,8 +35,6 @@ case class Grid[A](size: Int, cells: IndexedSeq[A]) {
     (x > m && xp > m) || (x < m && xp < m)
   }
 
-  def diff(other: Grid[A]) = cells.zip(other.cells).count { case (c1, c2) => c1 != c2 }
-
   def neighbors(pos: (Int, Int)): Seq[(Int, Int)] = {
     val (x, y) = pos
     for {
@@ -54,7 +50,7 @@ case class Grid[A](size: Int, cells: IndexedSeq[A]) {
 
 
 case class Scatter[A](value: Double, empty: Setter[A]) extends Gene[Grid[A]] {
-  def transform(org: Organism[Grid[A]]): Organism[Grid[A]] = {
+  def transform[B <: Organism[Grid[A], B]](org: B): B = {
     val coords = Grid.range(org.state.size)
     val intVal = value.toInt
     val m = org.state.middle
@@ -63,13 +59,13 @@ case class Scatter[A](value: Double, empty: Setter[A]) extends Gene[Grid[A]] {
       val yp = if (y > m) y - intVal else y + intVal
       if (org.state.inSame(x, xp) && org.state.inSame(y, yp) && org.state.inBounds(xp, yp)) org.state.get(xp, yp) else empty(x, y)
     })
-    org.fromState(grid)
+    org.withState(grid)
   }
-  def mutate(diff: Double): Gene[Grid[A]] = copy(value = value + diff)
+  def mutate: Gene[Grid[A]] = copy(value = value + Math.random() - 0.5)
 }
 
 case class Symmetry[A](value: Double) extends Gene[Grid[A]] {
-  def transform(org: Organism[Grid[A]]): Organism[Grid[A]] = {
+  def transform[B <: Organism[Grid[A], B]](org: B): B = {
     if (value < 0.5) org
     else {
       val offset = org.state.size - 1
@@ -78,18 +74,18 @@ case class Symmetry[A](value: Double) extends Gene[Grid[A]] {
         if (x < m) (x, y) else (Math.abs(x - offset), y)
       }
       val grid = Grid(org.state.size, coords.map { case (x, y) => org.state.get(x, y) })
-      org.fromState(grid)
+      org.withState(grid)
     }
   }
-  def mutate(diff: Double): Gene[Grid[A]] = copy(value = value + diff)
+  def mutate: Gene[Grid[A]] = copy(value = value + Math.random() - 0.5)
 }
 
 
 case class Ratio[A](value: Double, full: Setter[A], empty: Setter[A]) extends Gene[Grid[A]] {
-  def transform(org: Organism[Grid[A]]): Organism[Grid[A]] =
-    org.fromState(Grid(org.state.size, Grid.range(org.state.size).map { case (x, y) =>
+  def transform[B <: Organism[Grid[A], B]](org: B): B =
+    org.withState(Grid(org.state.size, Grid.range(org.state.size).map { case (x, y) =>
       if (Math.random() > 1 - value) full(x, y) else empty(x, y) }))
-  def mutate(diff: Double): Gene[Grid[A]] = copy(value = value + diff)
+  def mutate: Gene[Grid[A]] = copy(value = value + Math.random() - 0.5)
 }
 
 
